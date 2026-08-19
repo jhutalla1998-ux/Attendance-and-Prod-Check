@@ -191,6 +191,17 @@
             <option value="manual">Manual only</option>
           </select>
         </div>
+
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <h4 style="margin: 0 0 5px 0;">Shift Schedule</h4>
+                    <p class="muted" style="font-size: 12px; margin: 0 0 12px 0;">Set the two operating windows used by attendance, cycle count, and analytics.</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label>1st Shift starts<input type="time" id="shift-1-start" style="width:100%; padding:8px;"></label>
+                        <label>1st Shift ends<input type="time" id="shift-1-end" style="width:100%; padding:8px;"></label>
+                        <label>2nd Shift starts<input type="time" id="shift-2-start" style="width:100%; padding:8px;"></label>
+                        <label>2nd Shift ends<input type="time" id="shift-2-end" style="width:100%; padding:8px;"></label>
+                    </div>
+                </div>
         </div>
 
         <!-- Profile Tab -->
@@ -445,7 +456,8 @@
   <div id="toast-notification" class="toast"></div>
 
   <script src="db.js"></script>
-  <script src="app.js"></script>
+    <script src="shifts.js"></script>
+    <script src="app.js"></script>
   <script>
     // Tab Switching Logic
     window.switchSettingsTab = function(tabName) {
@@ -518,10 +530,21 @@
     const reminderList = document.getElementById('reminder-times-list');
     const addTimeBtn = document.getElementById('add-reminder-time-btn');
     const setShiftEndsBtn = document.getElementById('set-shift-ends-btn');
+        const shiftInputs = [
+            document.getElementById('shift-1-start'), document.getElementById('shift-1-end'),
+            document.getElementById('shift-2-start'), document.getElementById('shift-2-end')
+        ];
     
     if(themeSelect){
       themeSelect.value = localStorage.getItem('ims_theme') || 'light';
     }
+        if(window.IMS_SHIFTS){
+            const shifts = window.IMS_SHIFTS.getShifts();
+            shiftInputs[0].value = shifts[0].start;
+            shiftInputs[1].value = shifts[0].end;
+            shiftInputs[2].value = shifts[1].start;
+            shiftInputs[3].value = shifts[1].end;
+        }
 
     function addTimeInput(value = '') {
         const div = document.createElement('div');
@@ -543,7 +566,7 @@
     }
 
     if(addTimeBtn) addTimeBtn.addEventListener('click', () => addTimeInput());
-    if(setShiftEndsBtn) setShiftEndsBtn.addEventListener('click', () => { reminderList.innerHTML = ''; addTimeInput('14:00'); addTimeInput('22:00'); addTimeInput('06:00'); });
+    if(setShiftEndsBtn) setShiftEndsBtn.addEventListener('click', () => { reminderList.innerHTML = ''; window.IMS_SHIFTS.getShifts().forEach(shift => addTimeInput(shift.end)); });
 
     if(testReminderBtn){
       testReminderBtn.addEventListener('click', () => {
@@ -560,6 +583,12 @@
         
         const times = Array.from(document.querySelectorAll('.reminder-time-input')).map(i => i.value).filter(v => v);
         localStorage.setItem('ims_status_reminder_time', JSON.stringify(times));
+                if(window.IMS_SHIFTS){
+                    window.IMS_SHIFTS.saveShifts([
+                        { start: shiftInputs[0].value, end: shiftInputs[1].value },
+                        { start: shiftInputs[2].value, end: shiftInputs[3].value }
+                    ]);
+                }
 
         if(window.applyTheme) window.applyTheme();
         alert('Settings saved!');
