@@ -583,7 +583,8 @@
     </div>
   </main>
 
-  <script src="app.js"></script>
+    <script src="shifts.js"></script>
+    <script src="app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         const startInput = document.getElementById('analytics-start');
@@ -610,6 +611,7 @@
         }
         
         function getShiftFromTimestamp(ts) {
+            if (window.IMS_SHIFTS) return window.IMS_SHIFTS.getShiftFromTimestamp(ts);
             const d = new Date(ts);
             if (isNaN(d.getTime())) return { date: '', shift: '' };
             const h = d.getHours();
