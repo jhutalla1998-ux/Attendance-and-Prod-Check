@@ -2005,7 +2005,8 @@
     <div class="spinner"></div>
   </div>
   <div id="toast-notification" class="toast"></div>
-  <script src="app.js"></script>
+    <script src="shifts.js"></script>
+    <script src="app.js"></script>
   <script>
     if(!sessionStorage.getItem('dms_auth_v1')) window.location.href = 'index.html';
 
@@ -2186,6 +2187,7 @@
             return (h > 0 ? h + 'h ' : '') + m + 'm';
         }
         function getShiftFromTimestamp(ts) {
+            if (window.IMS_SHIFTS) return window.IMS_SHIFTS.getShiftFromTimestamp(ts);
             const d = new Date(ts);
             if (isNaN(d.getTime())) return { date: '', shift: '' };
             const h = d.getHours();
